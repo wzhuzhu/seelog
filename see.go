@@ -7,19 +7,19 @@ import (
 //  启动seelog
 func See(filePath string,port int) {
 
-		// 检查参数https://www.v2ex.com/
-		if !checkParam(filePath,port){
-			return
-		}
 
-		// 开启socket管理器
-		go manager.start()
-		// 监控文件
-		go monitor(filePath)
-		// 开启httpServer
-		go server(port)
+	// 检查参数
+	if !checkParam(filePath,port){
+		return
+	}
+
+	// 开启socket管理器
+	go manager.start()
+	// 监控文件
+	go monitor(filePath)
+	// 开启httpServer
+	go server(port)
 }
-
 
 // 参数验证
 func checkParam(filePath string,port int) bool {
