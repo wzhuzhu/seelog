@@ -7,7 +7,7 @@ import (
 //  启动seelog
 func See(filePath string,port int) {
 
-		// 检查参数
+		// 检查参数https://www.v2ex.com/
 		if !checkParam(filePath,port){
 			return
 		}
