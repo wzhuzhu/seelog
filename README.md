@@ -27,11 +27,10 @@
 * 在浏览器中访问 *http://host:port*
 
 ### 项目展示
-![image](https://github.com/xmge/file/blob/master/images/seelog1.gif)
+![image](https://github.com/xmge/seelog/blob/master/demo.gif)
 
 ### 项目TODO
 * 程序中直接输出日志
-* 日志过滤
 * 搜索
 * os.stat()延迟
 * 页面布局
