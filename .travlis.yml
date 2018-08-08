@@ -1,1 +1,11 @@
 language: go
+go:
+- 1.10.3
+script:
+ echo "success"
+notifications:
+  email:
+    recipients:
+        - xmgeee@gmail.com
+    on_success: change
+    on_failure: always
