@@ -2,7 +2,7 @@ language: go
 go:
 - 1.10.3
 script:
- echo "success"
+- echo "success"
 notifications:
   email:
     recipients:

@@ -29,7 +29,7 @@ func TestSee(t *testing.T) {
 		t.Log(err.Error())
 		return
 	}
-	for i := 1; i <= 10000; i++ {
+	for i := 1; i <= 100; i++ {
 		time.Sleep(1 * time.Second)
 		testLog := fmt.Sprintf("「模拟日志」[%s] 第[%d]行日志\n", time.Now().String(), i)
 		_, err := f.WriteString(testLog)
