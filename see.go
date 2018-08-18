@@ -7,7 +7,6 @@ import (
 //  启动seelog
 func See(filePath string,port int) {
 
-
 	// 检查参数
 	if !checkParam(filePath,port){
 		return
