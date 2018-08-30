@@ -29,10 +29,7 @@
 ### 项目展示
 ![image](https://github.com/xmge/seelog/blob/master/demo.gif)
 
-### 项目TODO
-* 程序中直接输出日志
-* 搜索
-* os.stat()延迟
-* 页面布局
-* 分布式
+### 第二版预告
+* 项目内直接集成
+* 过滤
 
