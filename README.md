@@ -28,8 +28,3 @@
 
 ### 项目展示
 ![image](https://github.com/xmge/seelog/blob/master/demo.gif)
-
-### 第二版预告
-* 项目内直接集成
-* 过滤
-
