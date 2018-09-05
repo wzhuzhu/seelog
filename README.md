@@ -20,7 +20,7 @@
 * 支持多浏览器同时访问
 * 支持浏览器websocket断线重连
 * 支持暂停、清屏、截图、过滤功能
-* 查找功能可直接使用 `Ctrl+F` 来查找
+* 查找功能可直接使用浏览器 `Ctrl+F` 来查找
 
 ### 集成方式
 * 在项目中引入seelog, **go get github.com/xmge/seelog**
