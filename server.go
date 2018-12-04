@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"golang.org/x/net/websocket"
+	"path"
+	"runtime"
 	"time"
 	"html/template"
 )
@@ -22,21 +24,24 @@ func server(port int)  {
 	http.HandleFunc("/",page)
 	// socket链接
 	http.Handle("/ws", websocket.Handler(genConn))
-	// 测试
+
+
+	// 这个很厉害啊，页面可以不用page那种方式展示了
 	http.HandleFunc("/test", func(writer http.ResponseWriter, request *http.Request) {
-		t, err := template.ParseFiles("index.html")
-		if (err != nil) {
+		_, currentfile, _, _ := runtime.Caller(0)
+		filename := path.Join(path.Dir(currentfile), "index.html")
+		t, err := template.ParseFiles(filename)
+		if err != nil {
 			log.Println(err)
 		}
 		t.Execute(writer, nil)
 	})
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d",port),nil))
+	log.Println(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }
 
 // 创建client对象
 func genConn(ws *websocket.Conn)  {
 	client := &client{time.Now().String(),ws,make(chan []byte,1024)}
 	manager.register <- client
-	go client.read()
 	client.write()
 }
