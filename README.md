@@ -3,7 +3,7 @@
 
 > 有了seelog,妈妈再也不用担心我登录服务器查看日志le...   
 项目地址：https://github.com/xmge/seelog    
-演示地址：http://seelog.xmge.top    
+演示地址：http://seelog.xmge.top // 正在备案中...   
 欢迎各位gopher使用指正:smiley: 
 
 ### 项目背景
@@ -20,6 +20,7 @@
 * 支持多浏览器同时访问
 * 支持浏览器websocket断线重连
 * 支持暂停、清屏、截图、过滤功能
+* 查找功能可直接使用浏览器 `Ctrl+F` 来完成
 
 ### 集成方式
 * 在项目中引入seelog, **go get github.com/xmge/seelog**
