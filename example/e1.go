@@ -1,47 +1,52 @@
 package main
 
 import (
+	"fmt"
 	"github.com/xmge/seelog"
+	"log"
 	"os"
 	"time"
-	"fmt"
-	"log"
 )
 
 const (
-	TestLog  = "test.log"	// yourproject 日志位置
-	TestPort = 9999			// 查看日志时端口
+	DebugLog  = "debug.log"
+	ErrLog	  = "err.log"
 )
 
-// example
-func main()  {
+func main() {
 
-	// 在程序开始时 开启seelog 即可
-	seelog.See(TestLog, TestPort)
+	// 测试
+	seelog.See("错误日志",ErrLog)
+	seelog.See("调试日志",DebugLog)
+	seelog.Serve(9000,"password")
 
-	// 模拟your项目
-	yourProject()
+	// 模拟服务输出日志
+	go printLog("调试日志",DebugLog)
+	go printLog("错误日志",ErrLog)
+	select {}
 }
 
-func yourProject()  {
-	for {
-		f, err := os.OpenFile(TestLog, os.O_RDWR|os.O_CREATE, 0766);	if err != nil {
-			log.Panic(err)
-		}
-		for i := 1; i <= 10; i++ {
-			time.Sleep(500 * time.Millisecond)
-			testLog := fmt.Sprintf("「模拟日志」[%s] 第[%d]行日志\n", time.Now().String(),i)
-			_, err := f.WriteString(testLog)
-			if err != nil {
-				log.Panic(err)
-			}
-		}
-		if err := f.Close();err != nil {
-			log.Panic(err)
-		}
-		if err := os.Remove(TestLog);err != nil {
-			log.Panic(err)
-		}
+
+func printLog(name,path string)  {
+	// 模拟日志输出
+	err := os.Remove(path)
+	if err != nil {
+		log.Println(err)
 	}
 
+	f, err := os.Create(path)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	for t := range time.Tick(time.Second * 1) {
+		testLog := fmt.Sprintf("「%s」[%s]\n", name, t.String())
+		_, err := f.WriteString(testLog)
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}
 }
+
+

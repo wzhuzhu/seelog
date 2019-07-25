@@ -1,7 +1,6 @@
 package seelog
 
 import (
-	"fmt"
 	"github.com/hpcloud/tail"
 	"log"
 )
@@ -22,11 +21,10 @@ func monitor() {
 				}
 			}()
 
-			fmt.Println("开始进行日志监控",sl.Name, sl.Path)
+			log.Println("开始进行日志监控",sl.Name, sl.Path)
 
 			t, _ := tail.TailFile(sl.Path, tail.Config{Follow: true})
 			for line := range t.Lines {
-				fmt.Println(line.Text)
 				manager.broadcast <- msg{sl.Name,line.Text}
 			}
 		}(sl)
