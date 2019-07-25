@@ -37,4 +37,4 @@
 * 在浏览器中访问 *http://host:port/{password}*
 
 ### 项目展示
-![image](http://pv75e5l73.bkt.clouddn.com/demo.gif)
+![image](https://github.com/xmge/seelog/blob/master/demo.gif)
