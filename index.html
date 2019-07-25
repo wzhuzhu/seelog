@@ -12,13 +12,21 @@
 
         var out = true
         var filterText = ""
+        var logName = ""
 
         function connect (){
             var ws = new WebSocket("ws://"+ window.location.host +"/ws");
             ws.onmessage = function(e) {
-                console.log(filterText)
+
+                // 过滤日志类型
+                slog = eval('(' + e.data + ')');
+                if (slog.logName != logName) {
+                    return
+                }
+
+                // 过滤查询条件
                 if (out && (filterText == "" || e.data.indexOf(filterText) != -1)){
-                    $('#log').append("<pre style='color: white;font-size: 15px'>"+ e.data +"</pre>").scrollTop($('#log')[0].scrollHeight)
+                    $('#log').append("<pre style='color: white;font-size: 15px'>"+ slog.data +"</pre>").scrollTop($('#log')[0].scrollHeight)
                 }
             };
             ws.onclose = function () {
@@ -42,6 +50,15 @@
 
 
         $(function () {
+
+            logName = $('#logs option:first').text();
+
+            $('#logs').click(function () {
+                $('#log').empty()
+                logName = $('#logs option:selected').text();
+            })
+
+
             //  暂停
             $('#pause').click(function () {
                 out = !out
@@ -66,6 +83,7 @@
             $('#filter').on('input',function () {
                 filterText = $('#filter').val()
             })
+
         })
 
 
@@ -75,34 +93,34 @@
 
                 // 图片导出为 png 格式
                 var type = 'png';
-                var imgData = canvas.toDataURL(type);
-                var _fixType = function(type) {
-                    type = type.toLowerCase().replace(/jpg/i, 'jpeg');
-                    var r = type.match(/png|jpeg|bmp|gif/)[0];
-                    return 'image/' + r;
-                };
+            var imgData = canvas.toDataURL(type);
+            var _fixType = function(type) {
+                type = type.toLowerCase().replace(/jpg/i, 'jpeg');
+                var r = type.match(/png|jpeg|bmp|gif/)[0];
+                return 'image/' + r;
+            };
 
-                // 加工image data，替换mime type
-                imgData = imgData.replace(_fixType(type),'image/octet-stream');
+            // 加工image data，替换mime type
+            imgData = imgData.replace(_fixType(type),'image/octet-stream');
 
-                //console.log(imgData);
+            //console.log(imgData);
 
-                var saveFile = function(data, filename){
-                    var save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
-                    save_link.href = data;
-                    save_link.download = filename;
+            var saveFile = function(data, filename){
+                var save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+                save_link.href = data;
+                save_link.download = filename;
 
-                    var event = document.createEvent('MouseEvents');
-                    event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-                    save_link.dispatchEvent(event);
-                };
+                var event = document.createEvent('MouseEvents');
+                event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+                save_link.dispatchEvent(event);
+            };
 
-                // 下载后的文件名
-                var filename = 'seelog'+ '.' + type;
-                // download
-                saveFile(imgData,filename);
+            // 下载后的文件名
+            var filename = 'seelog'+ '.' + type;
+            // download
+            saveFile(imgData,filename);
 
-            });
+        });
         }
 
     </script>
@@ -114,10 +132,17 @@
     <h2 id="title">实时查看日志信息 &nbsp;<button id="status" style="background-color: darkorange">正在连接...</button><button id=""><a href="http://github.com/xmge/seelog" style="text-decoration:none;"  target="_blank">项目地址</a></button>
     </h2>
     <div class="tool">
+
+        <select id="logs">
+        {{range .}}
+            <option>{{ .Name }}</option>
+        {{end}}
+        </select>
         <button id="pause">暂停</button>
         <button id="clear">清屏</button>
         <button id="cut">截图</button>
         <span style="padding:1px;border:1px ; background:#FFF"><button style="width: auto">过滤</button><input id="filter" type="text"></span>
+
     </div>
 </header>
 <div id="log"></div>
@@ -140,6 +165,13 @@
         padding-left: 12px;
         float: left;
     }
+
+    .tool select {
+        height: 30px;
+        width: 100px;
+        font-size: medium;
+    }
+
     .tool button {
         height: 30px;
         width: 100px;
@@ -149,7 +181,7 @@
     input {
         background-color: lightyellow;
         color: black;
-        font-size: medium;s
+        font-size: medium;
         position:absolute;
         height: 25px;
     }

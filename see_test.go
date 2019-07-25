@@ -10,33 +10,44 @@ import (
 )
 
 const (
-	TestLog  = "test.log"
-	TestPort = 9999
+	DebugLog  = "debug.log"
+	ErrLog	  = "err.log"
 )
 
 func TestSee(t *testing.T) {
 
 	// 测试
-	seelog.See(TestLog, TestPort)
+	seelog.See("错误日志",ErrLog)
+	seelog.See("调试日志",DebugLog)
+	seelog.Serve(9000,"aaa")
 
-	// 模拟日志输出
-	err := os.Remove(TestLog)
-	if err != nil {
-		log.Println(err.Error())
-	}
-	f, err := os.Create(TestLog)
-	if err != nil {
-		t.Log(err.Error())
-		return
-	}
-	for i := 1; i <= 100; i++ {
-		time.Sleep(1 * time.Second)
-		testLog := fmt.Sprintf("「模拟日志」[%s] 第[%d]行日志\n", time.Now().String(), i)
-		_, err := f.WriteString(testLog)
+	// 模拟服务输出日志
+	go printLog("调试日志",DebugLog)
+	go printLog("错误日志",ErrLog)
+	select {}
+}
+
+
+func printLog(name,path string)  {
+		// 模拟日志输出
+		err := os.Remove(path)
 		if err != nil {
-			log.Println(err.Error())
+			log.Println(err)
 		}
-	}
+
+		f, err := os.Create(path)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		for t := range time.Tick(time.Second * 1) {
+			testLog := fmt.Sprintf("「%s」[%s]\n", name, t.String())
+			_, err := f.WriteString(testLog)
+			if err != nil {
+				log.Println(err.Error())
+			}
+		}
 }
 
 

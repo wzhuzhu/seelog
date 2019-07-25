@@ -1,60 +1,35 @@
 package seelog
 
 import (
+	"fmt"
+	"github.com/hpcloud/tail"
 	"log"
-	"os"
-	"time"
 )
 
+type msg struct {
+	LogName string `json:"logName"`
+	Data	string `json:"data"`
+}
+
 // 监控日志文件
-func monitor(filePath string) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Printf("[seelog] error:%+v", err)
-		}
-	}()
+func monitor() {
 
-	var fileInfo os.FileInfo
-	var err error
-	for i :=1; i <= 10; i++{
-		fileInfo, err = os.Stat(filePath)
-		if err != nil {
-			log.Printf("[seelog] error:%v", err.Error())
-			continue
-		}
-		break
-	}
+	for _,sl := range slogs {
+		go func(sl slog) {
+			defer func() {
+				if err := recover(); err != nil {
+					log.Printf("[seelog] error:%+v", err)
+				}
+			}()
 
-	offset := fileInfo.Size()
-	for {
-		fileInfo, err = os.Stat(filePath)
-		if err != nil {
-			log.Printf("[seelog] error:%v", err.Error())
-			continue
-		}
-		newOffset := fileInfo.Size()
-		if offset < newOffset {
-			msg := make([]byte, newOffset-offset)
-			file, err := os.Open(filePath)
-			if err != nil {
-				log.Printf("[seelog] error:%v", err.Error())
-				continue
-			}
-			_, err = file.Seek(offset, 0)
-			if err != nil {
-				log.Printf("[seelog] error:%v", err.Error())
-			}
+			fmt.Println("开始进行日志监控",sl.Name, sl.Path)
 
-			_, err = file.Read(msg)
-			if err != nil {
-				log.Printf("[seelog] error:%v", err.Error())
+			t, _ := tail.TailFile(sl.Path, tail.Config{Follow: true})
+			for line := range t.Lines {
+				fmt.Println(line.Text)
+				manager.broadcast <- msg{sl.Name,line.Text}
 			}
-			manager.broadcast <- msg
-			offset = newOffset
-			file.Close()
-		}
-		offset = newOffset
-		time.Sleep(200 * time.Millisecond)
+		}(sl)
 	}
 
 }

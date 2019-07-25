@@ -1,7 +1,7 @@
 package seelog
 
 import (
-	"fmt"
+	"encoding/json"
 	"golang.org/x/net/websocket"
 	"log"
 )
@@ -10,19 +10,19 @@ import (
 type client struct {
 	id     string
 	socket *websocket.Conn
-	send   chan []byte
+	send   chan msg
 }
 
 // 客户端管理
 type clientManager struct {
 	clients    map[*client]bool
-	broadcast  chan []byte
+	broadcast  chan msg
 	register   chan *client
 	unregister chan *client
 }
 
 var manager = clientManager{
-	broadcast:  make(chan []byte),
+	broadcast:  make(chan msg),
 	register:   make(chan *client),
 	unregister: make(chan *client),
 	clients:    make(map[*client]bool),
@@ -45,25 +45,23 @@ func (manager *clientManager) start() {
 				conn.socket.Close()
 				delete(manager.clients, conn)
 			}
-		case message := <-manager.broadcast:
+		case msg := <-manager.broadcast:
 			for conn := range manager.clients {
-				select {
-				case conn.send <- message:
-				default:
-					close(conn.send)
-					delete(manager.clients, conn)
+					conn.send <- msg
 				}
 			}
-		}
 	}
 }
 
 func (c *client) write() {
 
 	for msg := range c.send {
-		_, err := c.socket.Write(msg)
+
+		msgByte,_ := json.Marshal(msg) // 忽略错误
+		_, err := c.socket.Write(msgByte)
 		if err != nil {
-			fmt.Println("write msg failed. ", err)
+			manager.unregister <- c
+			log.Println("write msg failed. ", err)
 			break
 		}
 	}
