@@ -53,7 +53,7 @@
 
             logName = $('#logs option:first').text();
 
-            $('#logs').click(function () {
+            $('#logs').on("change",function () {
                 $('#log').empty()
                 logName = $('#logs option:selected').text();
             })
