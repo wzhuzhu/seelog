@@ -31,7 +31,7 @@
             };
             ws.onclose = function () {
                 $('#status').css("background-color","red").text("链接断开")
-                reConnect()
+                ws = reConnect()
             }
             ws.onopen = function () {
                 $('#status').css("background-color","chartreuse").text("连接成功")
@@ -43,9 +43,11 @@
         }
 
         function reConnect(){
+            var conn;
             setTimeout(function(){
-                connect();
+                conn = connect();
             },1000);
+            return conn;
         }
 
         $(function () {
