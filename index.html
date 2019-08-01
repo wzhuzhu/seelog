@@ -39,6 +39,7 @@
             ws.onerror = function (e) {
                 $('#status').css("background-color","red").text("链接断开")
             }
+            return ws
         }
 
         function reConnect(){
@@ -46,16 +47,15 @@
                 connect();
             },1000);
         }
-        connect()
-
 
         $(function () {
-
+            var client = connect();
             logName = $('#logs option:first').text();
 
             $('#logs').on("change",function () {
                 $('#log').empty()
                 logName = $('#logs option:selected').text();
+                client.send(JSON.stringify({logName:logName}));
             })
 
 
