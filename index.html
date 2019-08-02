@@ -13,9 +13,10 @@
         var out = true
         var filterText = ""
         var logName = ""
+        var ws = null
 
         function connect (){
-            var ws = new WebSocket("ws://"+ window.location.host +"/ws");
+            ws = new WebSocket("ws://"+ window.location.host +"/ws");
             ws.onmessage = function(e) {
 
                 // 过滤日志类型
@@ -39,25 +40,22 @@
             ws.onerror = function (e) {
                 $('#status').css("background-color","red").text("链接断开")
             }
-            return ws
         }
 
         function reConnect(){
-            var conn;
             setTimeout(function(){
-                conn = connect();
+                connect();
             },1000);
-            return conn;
         }
+        connect();
 
         $(function () {
-            var client = connect();
             logName = $('#logs option:first').text();
 
             $('#logs').on("change",function () {
                 $('#log').empty()
                 logName = $('#logs option:selected').text();
-                client.send(JSON.stringify({logName:logName}));
+                ws.send(JSON.stringify({logName:logName}));
             })
 
 

@@ -78,8 +78,8 @@ func (c *client) recv() {
 		if err := websocket.Message.Receive(c.socket, &reply); err != nil {
 			if err != io.EOF {
 				log.Println("receive failed", err)
+				manager.unregister <- c
 			}
-			manager.unregister <- c
 			break
 		}
 		type recv struct {
