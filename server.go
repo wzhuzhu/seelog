@@ -32,7 +32,7 @@ func server(port int, password string) {
 	// 访问页面
 	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		if !(strings.Replace(request.RequestURI, "/", "", -1) == password) {
-			showPage(writer, Page403,nil)
+			showPage(writer, Page403, nil)
 			return
 		}
 		showPage(writer, PageIndex, slogs)
@@ -53,7 +53,12 @@ func showPage(writer http.ResponseWriter, page string, data interface{}) {
 
 // 创建client对象
 func genConn(ws *websocket.Conn) {
-	client := &client{time.Now().String(), ws, make(chan msg, 1024)}
+	var defaultLog = ""
+	if len(slogs) > 0 {
+		defaultLog = slogs[0].Name
+	}
+	client := &client{time.Now().String(), ws, make(chan msg, 1024), defaultLog}
 	manager.register <- client
+	go client.recv()
 	client.write()
 }

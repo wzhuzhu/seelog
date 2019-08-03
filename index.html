@@ -13,9 +13,10 @@
         var out = true
         var filterText = ""
         var logName = ""
+        var ws = null
 
         function connect (){
-            var ws = new WebSocket("ws://"+ window.location.host +"/ws");
+            ws = new WebSocket("ws://"+ window.location.host +"/ws");
             ws.onmessage = function(e) {
 
                 // 过滤日志类型
@@ -31,7 +32,7 @@
             };
             ws.onclose = function () {
                 $('#status').css("background-color","red").text("链接断开")
-                reConnect()
+                ws = reConnect()
             }
             ws.onopen = function () {
                 $('#status').css("background-color","chartreuse").text("连接成功")
@@ -46,16 +47,15 @@
                 connect();
             },1000);
         }
-        connect()
-
+        connect();
 
         $(function () {
-
             logName = $('#logs option:first').text();
 
             $('#logs').on("change",function () {
                 $('#log').empty()
                 logName = $('#logs option:selected').text();
+                ws.send(JSON.stringify({logName:logName}));
             })
 
 
