@@ -2,7 +2,7 @@ package seelog
 
 import (
 	"errors"
-	"log"
+	"fmt"
 )
 
 type slog struct {
@@ -17,8 +17,15 @@ var slogs = []slog{}
 func See(name,path string) {
 
 	if name == "" || path == "" {
-		log.Println(errors.New("名称或路径不能为空"))
+		printError(errors.New("log名称或者路径不可为空"))
 		return
+	}
+
+	for _,sl := range slogs {
+		if sl.Name == name {
+			printError(errors.New(fmt.Sprintf("log名称 %s 已存在,不可重复",name)))
+			return
+		}
 	}
 	slogs = append(slogs, slog{name,path})
 }
@@ -27,7 +34,12 @@ func See(name,path string) {
 func Serve(port int,password string)  {
 
 	if port < 0 || port > 65535 {
-		log.Println(errors.New("端口号不正确"))
+		printError(errors.New("端口号不符合规范，port(0,65535)"))
+		return
+	}
+
+	if len(slogs) < 1 {
+		printError(errors.New("至少监听一个日志文件,请使用 seelog.See(name,path string)"))
 		return
 	}
 	// 开启socket管理器

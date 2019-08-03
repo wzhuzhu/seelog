@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"golang.org/x/net/websocket"
 	"io"
-	"log"
+	"errors"
 )
 
 //  websocket客户端
@@ -33,7 +33,7 @@ var manager = clientManager{
 func (manager *clientManager) start() {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Printf("[seelog] error:%+v", err)
+			printError(errors.New("manager start() panic"))
 		}
 	}()
 
@@ -49,7 +49,7 @@ func (manager *clientManager) start() {
 			}
 		case msg := <-manager.broadcast:
 			for conn := range manager.clients {
-				if conn.see == msg.LogName || conn.see == "" {
+				if conn.see == msg.LogName {
 					conn.send <- msg
 				}
 			}
@@ -60,24 +60,22 @@ func (manager *clientManager) start() {
 func (c *client) write() {
 
 	for msg := range c.send {
-
 		msgByte, _ := json.Marshal(msg) // 忽略错误
 		_, err := c.socket.Write(msgByte)
 		if err != nil {
 			manager.unregister <- c
-			log.Println("write msg failed. ", err)
+			printError(err)
 			break
 		}
 	}
-	log.Println("web socket closed")
 }
 
-func (c *client) recv() {
+func (c *client) read() {
 	for {
 		var reply string
 		if err := websocket.Message.Receive(c.socket, &reply); err != nil {
 			if err != io.EOF {
-				log.Println("receive failed", err)
+				printError(err)
 				manager.unregister <- c
 			}
 			break
@@ -88,7 +86,7 @@ func (c *client) recv() {
 		var rcv = &recv{}
 		if err := json.Unmarshal([]byte(reply), &rcv); err != nil {
 			manager.unregister <- c
-			log.Println("unmarshal msg failed. ", err)
+			printError(err)
 			break
 		}
 		c.see = rcv.LogName

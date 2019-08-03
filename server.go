@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strings"
 	"time"
+	"errors"
 )
 
 const (
@@ -22,7 +23,7 @@ func server(port int, password string) {
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Printf("[seelog] error:%+v\n", err)
+			printError(errors.New("server panic"))
 		}
 	}()
 
@@ -46,19 +47,15 @@ func showPage(writer http.ResponseWriter, page string, data interface{}) {
 	filename := path.Join(path.Dir(currentfile), page)
 	t, err := template.ParseFiles(filename)
 	if err != nil {
-		log.Println(err)
+		printError(err)
 	}
 	t.Execute(writer, data)
 }
 
 // 创建client对象
 func genConn(ws *websocket.Conn) {
-	var defaultLog = ""
-	if len(slogs) > 0 {
-		defaultLog = slogs[0].Name
-	}
-	client := &client{time.Now().String(), ws, make(chan msg, 1024), defaultLog}
+	client := &client{time.Now().String(), ws, make(chan msg, 1024), slogs[0].Name}
 	manager.register <- client
-	go client.recv()
+	go client.read()
 	client.write()
 }
