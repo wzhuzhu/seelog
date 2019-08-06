@@ -29,11 +29,6 @@ func TestSee(t *testing.T) {
 
 
 func printLog(name,path string)  {
-		// 模拟日志输出
-		err := os.Remove(path)
-		if err != nil {
-			log.Println(err)
-		}
 
 		f, err := os.Create(path)
 		if err != nil {
