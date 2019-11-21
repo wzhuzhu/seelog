@@ -1,4 +1,4 @@
-# seelog [![Build Status](https://travis-ci.org/xmge/seelog.svg?branch=master)](https://travis-ci.org/xmge/seelog) [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/xmge/seelog/blob/master/LICENSE)
+# seelog  [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/xmge/seelog/blob/master/LICENSE)
 
 
 > 有了seelog,妈妈再也不用担心我登录服务器查看日志le...   
