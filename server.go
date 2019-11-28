@@ -1,25 +1,18 @@
 package seelog
 
 import (
-	"fmt"
-	"golang.org/x/net/websocket"
-	"html/template"
-	"log"
-	"net/http"
-	"path"
-	"runtime"
-	"strings"
-	"time"
 	"errors"
-)
+	"fmt"
+	"html/template"
+	"net/http"
+	"time"
 
-const (
-	PageIndex = "index.html"
-	Page403   = "403.html"
+	auth "github.com/abbot/go-http-auth"
+	"golang.org/x/net/websocket"
 )
 
 // 开启 httpServer
-func server(port int, password string) {
+func server(port int) (err error) {
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -30,22 +23,33 @@ func server(port int, password string) {
 	// socket链接
 	http.Handle("/ws", websocket.Handler(genConn))
 
+	_authlog := auth.NewBasicAuthenticator("frnd log", secret)
+	http.HandleFunc("/log", auth.JustCheck(_authlog, logPage))
+
+	_authhitory := auth.NewBasicAuthenticator("frnd log history", secret)
+	if logDir != "" {
+		http.HandleFunc("/history/", auth.JustCheck(_authhitory, handleFileServer(logDir, "/history/")))
+	}
+
 	// 访问页面
 	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		if !(strings.Replace(request.RequestURI, "/", "", -1) == password) {
-			showPage(writer, Page403, nil)
-			return
-		}
-		showPage(writer, PageIndex, slogs)
+		showPage(writer, page403, nil)
 	})
-	log.Println(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+	if tlsCrt != "" && tlsKey != "" {
+		err = http.ListenAndServeTLS(fmt.Sprintf(":%d", port), tlsCrt, tlsKey, nil)
+	} else {
+		err = http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	}
+	return
+}
+
+func logPage(w http.ResponseWriter, r *http.Request) {
+	showPage(w, pageIndex, slogs)
 }
 
 // 输出page
 func showPage(writer http.ResponseWriter, page string, data interface{}) {
-	_, currentfile, _, _ := runtime.Caller(0) // 忽略错误
-	filename := path.Join(path.Dir(currentfile), page)
-	t, err := template.ParseFiles(filename)
+	t, err := template.ParseFiles(page)
 	if err != nil {
 		printError(err)
 	}
